@@ -94,6 +94,7 @@ npm run dev
 
 - **Twitter**: https://x.com/TenXRenaissance
 - **Telegram**: https://t.me/TenXRenaissance_EN
+- **Support Email**: support@tencoin.site
 
 ## 📁 Project Structure
 

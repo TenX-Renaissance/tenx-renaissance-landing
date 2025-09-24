@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Twitter, Send, Copy, ExternalLink } from "lucide-react";
+import { Twitter, Send, Copy, ExternalLink, Mail } from "lucide-react";
 import mascotCommand from "@/assets/mascot-command.png";
 
 const Footer = () => {
@@ -30,6 +30,12 @@ const Footer = () => {
       icon: <Twitter className="h-5 w-5" />,
       url: "https://x.com/TenXRenaissance", 
       description: "Follow for updates",
+    },
+    {
+      name: "Support",
+      icon: <Mail className="h-5 w-5" />,
+      url: "mailto:support@tencoin.site",
+      description: "Get help & support",
     },
   ];
 
