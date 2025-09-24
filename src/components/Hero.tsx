@@ -5,13 +5,16 @@ import mascotFlying from "@/assets/mascot-flying.png";
 import { Copy, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSwap } from "@/contexts/SwapContext";
+import ChartModal from "@/components/ChartModal";
+import { useState } from "react";
 
 const Hero = () => {
   const { toast } = useToast();
   const { openSwap } = useSwap();
+  const [isChartModalOpen, setIsChartModalOpen] = useState(false);
 
-  const contractAddress = "0xF58d3DABd0f71F7a1d1956cE61fd4D945997c520";
-  const burnTxHash = "0x...TBD...";
+  const contractAddress = "0x3aE335b251b3185BEE64c710cA94F11B5EBAd86e";
+  const burnTxHash = "0x9e319c249eac2a7564c30203e54c2dc0ad36fee0a821b1cefbb9ee62701fe618";
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -95,59 +98,18 @@ const Hero = () => {
               >
                 Buy TENX
               </Button>
-              <Button variant="outline-gold" size="xl">
-                Join the Flock
+              <Button 
+                variant="outline-gold" 
+                size="xl"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsChartModalOpen(true);
+                }}
+              >
+                View Chart
               </Button>
             </div>
 
-            {/* Contract Info */}
-            <div className="space-y-4 pt-6 border-t border-border/50">
-              <Card className="card-punk">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-600">Contract Address:</span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(contractAddress, "Contract address")}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => window.open(`https://bscscan.com/address/${contractAddress}`, '_blank')}
-                          className="h-8 w-8 p-0"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <code className="block text-sm bg-white/80 px-3 py-2 rounded font-mono text-blue-800 border border-blue-200 break-all">
-                      {contractAddress}
-                    </code>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <span className="text-sm text-slate-600">Burn TX:</span>
-                <code className="text-xs bg-white/80 px-2 py-1 rounded font-mono text-amber-600 border border-amber-200">
-                  {burnTxHash}
-                </code>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => copyToClipboard(burnTxHash, "Burn transaction hash")}
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
           </div>
 
           {/* Right side - Mascot */}
@@ -162,7 +124,72 @@ const Hero = () => {
             </div>
           </div>
         </div>
+
+        {/* Contract Info Cards - Full width row below hero content */}
+        <div className="pt-6 mt-4">
+          <div className="grid md:grid-cols-2 gap-3">
+            {/* Contract Address Card */}
+            <Card className="card-punk">
+              <CardContent className="p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-600">Contract Address:</span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(contractAddress, "Contract address")}
+                        className="h-6 w-6 p-0"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(`https://bscscan.com/address/${contractAddress}`, '_blank')}
+                        className="h-6 w-6 p-0"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <code className="block text-xs bg-white/80 px-2 py-1 rounded font-mono text-blue-800 border border-blue-200 break-all">
+                    {contractAddress}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Burn TX Card */}
+            <Card className="card-punk">
+              <CardContent className="p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-600">Burn TX:</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(`https://bscscan.com/tx/${burnTxHash}`, '_blank')}
+                      className="h-6 w-6 p-0"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <code className="block text-xs bg-white/80 px-2 py-1 rounded font-mono text-amber-600 border border-amber-200 break-all">
+                    {burnTxHash}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
+      
+      {/* Chart Modal */}
+      <ChartModal 
+        isOpen={isChartModalOpen} 
+        onClose={() => setIsChartModalOpen(false)} 
+      />
     </section>
   );
 };

@@ -14,7 +14,7 @@ import { SwapProvider, useSwap } from "@/contexts/SwapContext";
 
 const IndexContent = () => {
   const { isSwapVisible, closeSwap } = useSwap();
-  const contractAddress = "0xF58d3DABd0f71F7a1d1956cE61fd4D945997c520";
+  const contractAddress = "0x3aE335b251b3185BEE64c710cA94F11B5EBAd86e";
 
   return (
     <div className="min-h-screen" onClick={closeSwap}>

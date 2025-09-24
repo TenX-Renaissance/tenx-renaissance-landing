@@ -8,7 +8,7 @@ import mascotCommand from "@/assets/mascot-command.png";
 const Footer = () => {
   const { toast } = useToast();
   
-  const contractAddress = "0xF58d3DABd0f71F7a1d1956cE61fd4D945997c520";
+  const contractAddress = "0x3aE335b251b3185BEE64c710cA94F11B5EBAd86e";
   
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);

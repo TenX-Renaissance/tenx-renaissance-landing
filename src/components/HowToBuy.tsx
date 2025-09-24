@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, DollarSign, RefreshCw, Users } from "lucide-react";
 import { useSwap } from "@/contexts/SwapContext";
+import ChartModal from "@/components/ChartModal";
+import { useState } from "react";
 
 const HowToBuy = () => {
   const { openSwap } = useSwap();
+  const [isChartModalOpen, setIsChartModalOpen] = useState(false);
   const steps = [
     {
       step: "1",
@@ -114,7 +117,14 @@ const HowToBuy = () => {
                 >
                   Buy TENX Now
                 </Button>
-                <Button variant="outline-gold" size="lg">
+                <Button 
+                  variant="outline-gold" 
+                  size="lg"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsChartModalOpen(true);
+                  }}
+                >
                   View Chart
                 </Button>
               </div>
@@ -122,6 +132,12 @@ const HowToBuy = () => {
           </Card>
         </div>
       </div>
+      
+      {/* Chart Modal */}
+      <ChartModal 
+        isOpen={isChartModalOpen} 
+        onClose={() => setIsChartModalOpen(false)} 
+      />
     </section>
   );
 };
