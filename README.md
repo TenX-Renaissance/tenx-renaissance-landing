@@ -4,7 +4,7 @@ A modern, responsive landing page for the TENX Renaissance token - a community-f
 
 ## 🚀 Live Site
 
-**URL**: https://tenx-renaissance-landing.vercel.app
+**URL**: https://tencoin.site
 
 ## 📋 Project Overview
 
