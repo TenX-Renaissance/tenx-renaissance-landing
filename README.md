@@ -34,9 +34,9 @@ This landing page showcases the TENX Renaissance token with:
 
 ## 🔗 Contract Information
 
-- **Contract Address**: `0x5fA991fe5B8DAf3292678C8054CCBB51f92e6546`
+- **Contract Address**: `0xF58d3DABd0f71F7a1d1956cE61fd4D945997c520`
 - **Network**: BSC Mainnet
-- **BSCScan**: https://bscscan.com/address/0x5fA991fe5B8DAf3292678C8054CCBB51f92e6546
+- **BSCScan**: https://bscscan.com/address/0xF58d3DABd0f71F7a1d1956cE61fd4D945997c520
 - **Smart Contracts Repository**: https://github.com/TenX-Renaissance/token
 
 ## 🛠️ Technology Stack
