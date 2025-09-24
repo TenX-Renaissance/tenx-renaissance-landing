@@ -1,12 +1,25 @@
 # TENX Renaissance Landing Page
 
-A modern, responsive landing page for the TENX Renaissance token - a community-first memecoin with fair launch mechanics.
+A modern, responsive landing page for the TENX Renaissance token - a community-first memecoin with fair launch mechanics and zero taxes.
 
 ## 🚀 Live Site
 
 **URL**: https://tencoin.site
 
-## 📋 Project Overview
+## 🪙 About TENX Renaissance
+
+TENX Renaissance is a meme token that brings the fierce spirit of rebellion and rebirth to the crypto space. Symbolized by our bold blue mascot, it represents community strength, humor, and fearless innovation.
+
+### ✨ Key Features
+
+- **Fair Launch**: No presale, no team allocation
+- **50% Supply Burn**: Half of the total supply burned to dead address at launch
+- **Zero Taxes**: No buy or sell taxes - pure community token
+- **Community Owned**: Transparent and community-driven
+- **Total Supply**: 2 × 10³⁰ TENX (2,000,000,000,000,000,000,000,000,000,000)
+- **Final Supply**: 1 × 10³⁰ TENX (50% burned at launch)
+
+## 📋 Landing Page Features
 
 This landing page showcases the TENX Renaissance token with:
 
@@ -19,74 +32,109 @@ This landing page showcases the TENX Renaissance token with:
 - **FAQ**: Frequently asked questions
 - **Footer**: Social links and contract information
 
-## 🔗 Related Repositories
+## 🔗 Contract Information
 
-- **Smart Contracts**: https://github.com/TenX-Renaissance/token
+- **Contract Address**: `0x5fA991fe5B8DAf3292678C8054CCBB51f92e6546`
+- **Network**: BSC Mainnet
+- **BSCScan**: https://bscscan.com/address/0x5fA991fe5B8DAf3292678C8054CCBB51f92e6546
+- **Smart Contracts Repository**: https://github.com/TenX-Renaissance/token
 
-## How can I edit this code?
+## 🛠️ Technology Stack
 
-There are several ways of editing your application.
+This project is built with modern web technologies:
 
-**Use Lovable**
+- **Vite** - Fast build tool and development server
+- **React 18** - Modern UI library
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Beautiful, accessible UI components
+- **React Router** - Client-side routing
+- **Lucide React** - Beautiful icons
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9e25f69d-9b43-470a-a8ec-a848babb562b) and start prompting.
+## 🚀 Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v16 or higher)
+- npm or yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Clone the repository
+git clone https://github.com/TenX-Renaissance/tenx-renaissance-landing.git
 
-Follow these steps:
+# Navigate to the project directory
+cd tenx-renaissance-landing
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Available Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-**Use GitHub Codespaces**
+## 🎨 Design Features
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Responsive Design**: Works perfectly on all devices
+- **Dark Theme**: Modern dark theme with blue and amber accents
+- **Animations**: Smooth animations and hover effects
+- **Sky Background**: Beautiful gradient sky background in hero section
+- **Interactive Elements**: Copy-to-clipboard functionality for contract address
+- **PancakeSwap Integration**: Embedded swap widget for easy token purchases
 
-## What technologies are used for this project?
+## 🌐 Social Links
 
-This project is built with:
+- **Twitter**: https://x.com/TenXRenaissance
+- **Telegram**: https://t.me/TenXRenaissance_EN
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📁 Project Structure
 
-## How can I deploy this project?
+```
+src/
+├── components/          # React components
+│   ├── ui/             # Reusable UI components
+│   ├── Header.tsx      # Navigation header
+│   ├── Hero.tsx        # Hero section with contract info
+│   ├── About.tsx       # About section
+│   ├── Features.tsx    # Features showcase
+│   ├── Tokenomics.tsx  # Token distribution info
+│   ├── HowToBuy.tsx    # Purchase instructions
+│   ├── Roadmap.tsx     # Project roadmap
+│   ├── FAQ.tsx         # Frequently asked questions
+│   ├── Footer.tsx      # Footer with social links
+│   └── Disclaimer.tsx  # Legal disclaimer
+├── contexts/           # React contexts
+│   └── SwapContext.tsx # PancakeSwap widget state
+├── hooks/              # Custom React hooks
+├── pages/              # Page components
+└── assets/             # Images and static assets
+```
 
-Simply open [Lovable](https://lovable.dev/projects/9e25f69d-9b43-470a-a8ec-a848babb562b) and click on Share -> Publish.
+## 🚀 Deployment
 
-## Can I connect a custom domain to my Lovable project?
+The project is configured for easy deployment on Vercel:
 
-Yes, you can!
+1. Connect your GitHub repository to Vercel
+2. Vercel will automatically detect the Vite configuration
+3. The build process will create an optimized production build
+4. Your site will be live at the provided Vercel URL
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## ⚠️ Disclaimer
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+TENX is a meme token created for entertainment purposes only. It has no intrinsic value, no expectation of profit, and no formal roadmap or obligations. Cryptocurrency investments are highly volatile and risky. Do not risk funds you can't afford to lose. Always verify the contract address and do your own research before making any transactions.
+
+## 📜 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+**Join the TENX Renaissance community and be part of the rebellion! 🚀**
