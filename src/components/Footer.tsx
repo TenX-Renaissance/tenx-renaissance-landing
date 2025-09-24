@@ -1,34 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle, Twitter, Send, Mail } from "lucide-react";
-import mascotElegant from "@/assets/mascot-elegant.png";
+import { useToast } from "@/hooks/use-toast";
+import { Twitter, Send, Copy, ExternalLink } from "lucide-react";
+import mascotCommand from "@/assets/mascot-command.png";
 
 const Footer = () => {
+  const { toast } = useToast();
+  
+  const contractAddress = "0x5fA991fe5B8DAf3292678C8054CCBB51f92e6546";
+  
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: `${label} copied to clipboard`,
+    });
+  };
+
   const socialLinks = [
     {
       name: "Telegram",
       icon: <Send className="h-5 w-5" />,
-      url: "#",
+      url: "https://t.me/TenXRenaissance_EN",
       description: "Join the main flock",
     },
     {
       name: "Twitter",
       icon: <Twitter className="h-5 w-5" />,
-      url: "#", 
+      url: "https://x.com/TenXRenaissance", 
       description: "Follow for updates",
-    },
-    {
-      name: "Discord",
-      icon: <MessageCircle className="h-5 w-5" />,
-      url: "#",
-      description: "Community chat",
-    },
-    {
-      name: "Newsletter",
-      icon: <Mail className="h-5 w-5" />,
-      url: "#",
-      description: "Renaissance updates",
     },
   ];
 
@@ -44,9 +45,9 @@ const Footer = () => {
               {/* Left side - Call to Action */}
               <div className="text-center lg:text-left">
                 <h2 className="text-4xl lg:text-5xl font-black mb-6">
-                  <span className="renaissance-accent">Join the</span>
+                  <span className="text-amber-500">Join the</span>
                   <br />
-                  <span className="punk-title">Flock</span>
+                  <span className="text-blue-600">Flock</span>
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8">
                   TENX lives where the memes live. Hop in, grab your mascot pack, 
@@ -84,8 +85,8 @@ const Footer = () => {
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-renaissance opacity-20 rounded-full blur-2xl scale-110 animate-pulse" />
                   <img
-                    src={mascotElegant}
-                    alt="TENX Elegant Mascot"
+                    src={mascotCommand}
+                    alt="TENX Command Mascot"
                     className="relative w-64 lg:w-80 h-auto animate-float"
                   />
                 </div>
@@ -99,8 +100,8 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
               <h3 className="text-2xl font-bold mb-2">
-                <span className="punk-title">TENX</span>
-                <span className="renaissance-accent"> Renaissance</span>
+                <span className="text-blue-600">TENX</span>
+                <span className="text-amber-500"> Renaissance</span>
               </h3>
               <p className="text-sm text-muted-foreground">
                 The rebirth of meme culture • Fair • Tax-Free • Pure Fun
@@ -111,9 +112,30 @@ const Footer = () => {
               <p className="text-sm text-muted-foreground mb-2">
                 Contract Address (Verify Before Buying):
               </p>
-              <code className="text-xs bg-card px-3 py-2 rounded font-mono text-primary border">
-                0x...TBD...
-              </code>
+              <div className="flex items-center justify-center md:justify-end gap-2">
+                <code 
+                  className="text-xs bg-card px-3 py-2 rounded font-mono text-primary border cursor-pointer hover:bg-card/80 transition-colors break-all"
+                  onClick={() => copyToClipboard(contractAddress, "Contract address")}
+                >
+                  {contractAddress}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(contractAddress, "Contract address")}
+                  className="h-8 w-8 p-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.open(`https://bscscan.com/address/${contractAddress}`, '_blank')}
+                  className="h-8 w-8 p-0"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
           

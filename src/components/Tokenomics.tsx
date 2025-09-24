@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { PieChart, Flame, Droplets, TrendingUp } from "lucide-react";
+import leaderImage from "@/assets/leader-001.png";
 
 const Tokenomics = () => {
   const tokenomics = [
@@ -36,7 +37,7 @@ const Tokenomics = () => {
   ];
 
   return (
-    <section className="py-24 px-4 relative">
+    <section id="tokenomics" className="py-24 px-4 relative">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5" />
       
       <div className="relative container mx-auto max-w-6xl">
@@ -45,7 +46,7 @@ const Tokenomics = () => {
             Simple. Transparent.
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-black mb-6">
-            <span className="punk-title">Tokenomics</span>
+            <span className="text-blue-600">Tokenomics</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             No team tokens. No unlock games. Transparent from day one.
@@ -78,45 +79,61 @@ const Tokenomics = () => {
         </div>
 
         {/* Distribution Visualization */}
-        <Card className="card-punk max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-center">Token Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="flex items-center gap-2">
-                  <Flame className="h-4 w-4 text-destructive" />
-                  Burned (50%)
-                </span>
-                <span className="font-bold text-destructive">50%</span>
-              </div>
-              <Progress value={50} className="h-3" />
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-accent" />
-                  Liquidity Pool (50%)
-                </span>
-                <span className="font-bold text-accent">50%</span>
-              </div>
-              <Progress value={50} className="h-3" />
-            </div>
+        <div className="grid grid-cols-12 gap-8 items-center">
+          <div className="col-span-12 lg:col-span-8">
+            <Card className="card-punk">
+              <CardHeader>
+                <CardTitle className="text-center">Token Distribution</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2">
+                      <Flame className="h-4 w-4 text-destructive" />
+                      Burned (50%)
+                    </span>
+                    <span className="font-bold text-destructive">50%</span>
+                  </div>
+                  <Progress value={50} className="h-3" />
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2">
+                      <Droplets className="h-4 w-4 text-accent" />
+                      Liquidity Pool (50%)
+                    </span>
+                    <span className="font-bold text-accent">50%</span>
+                  </div>
+                  <Progress value={50} className="h-3" />
+                </div>
 
-            <div className="pt-4 border-t border-border/50">
-              <div className="flex justify-between items-center text-sm">
-                <span>Buy Tax</span>
-                <Badge variant="outline" className="border-primary text-primary">0%</Badge>
-              </div>
-              <div className="flex justify-between items-center text-sm mt-2">
-                <span>Sell Tax</span>
-                <Badge variant="outline" className="border-primary text-primary">0%</Badge>
-              </div>
+                <div className="pt-4 border-t border-border/50">
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Buy Tax</span>
+                    <Badge variant="outline" className="border-primary text-primary">0%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <span>Sell Tax</span>
+                    <Badge variant="outline" className="border-primary text-primary">0%</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Leader Image */}
+          <div className="col-span-12 lg:col-span-4 flex justify-center lg:justify-end">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full blur-2xl scale-110 animate-pulse" />
+              <img
+                src={leaderImage}
+                alt="TENX Leader"
+                className="relative w-64 lg:w-80 h-auto animate-float drop-shadow-2xl"
+              />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import mascotHero from "@/assets/mascot-hero.png";
-import { Copy } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import mascotFlying from "@/assets/mascot-flying.png";
+import { Copy, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSwap } from "@/contexts/SwapContext";
 
 const Hero = () => {
   const { toast } = useToast();
+  const { openSwap } = useSwap();
 
-  const contractAddress = "0x...TBD...";
+  const contractAddress = "0x5fA991fe5B8DAf3292678C8054CCBB51f92e6546";
   const burnTxHash = "0x...TBD...";
 
   const copyToClipboard = (text: string, label: string) => {
@@ -19,36 +22,60 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 bg-gradient-hero opacity-80" />
-      <div className="absolute top-10 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000" />
+    <section id="hero" className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
+      {/* Sky-like background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-blue-100 to-blue-200" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-300/30 via-transparent to-purple-200/20" />
+      
+      {/* Cloud-like decorative elements */}
+      <div className="absolute top-20 left-20 w-96 h-32 bg-white/20 rounded-full blur-2xl animate-pulse" />
+      <div className="absolute top-40 right-32 w-80 h-24 bg-white/15 rounded-full blur-2xl animate-pulse delay-500" />
+      <div className="absolute bottom-32 left-1/4 w-72 h-28 bg-white/10 rounded-full blur-2xl animate-pulse delay-1000" />
+      <div className="absolute bottom-20 right-20 w-64 h-20 bg-white/25 rounded-full blur-2xl animate-pulse delay-700" />
+      
+      {/* Floating particles for atmosphere */}
+      <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/40 rounded-full animate-bounce" />
+      <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-white/50 rounded-full animate-bounce delay-300" />
+      <div className="absolute bottom-1/3 left-1/5 w-1.5 h-1.5 bg-white/30 rounded-full animate-bounce delay-700" />
       
       <div className="relative container mx-auto max-w-6xl">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div className="text-center lg:text-left space-y-8">
             <div className="space-y-4">
-              <Badge variant="outline" className="border-primary text-primary mb-6">
-                Fair Launch • No Presale • Community Owned
-              </Badge>
+              <div className="relative inline-block">
+                <Badge variant="outline" className="border-blue-500 text-blue-600 mb-6 relative overflow-hidden group cursor-pointer animate-glow-subtle">
+                  <span className="relative z-10">Fair Launch • No Presale • Community Owned</span>
+                  
+                  {/* Ripple effect */}
+                  <div className="absolute inset-0 bg-blue-500/20 scale-0 group-hover:scale-100 transition-transform duration-500 ease-out rounded-full opacity-0 group-hover:opacity-100"></div>
+                  
+                  {/* Glowing effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 via-blue-500/30 to-blue-600/30 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* Pulsing glow */}
+                  <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-pulse opacity-0 group-hover:opacity-100"></div>
+                  
+                  {/* Continuous subtle glow */}
+                  <div className="absolute inset-0 bg-blue-500/10 rounded-full animate-ping opacity-20"></div>
+                </Badge>
+              </div>
               
               <h1 className="text-5xl lg:text-7xl font-black leading-tight">
-                <span className="punk-title">TENX</span>
+                <span className="text-blue-600">TENX</span>
                 <br />
-                <span className="renaissance-accent">Renaissance</span>
+                <span className="text-amber-500">Renaissance</span>
               </h1>
               
-              <p className="text-xl lg:text-2xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
+              <p className="text-xl lg:text-2xl text-slate-700 max-w-xl mx-auto lg:mx-0">
                 They've all had their time. The dogs, the frogs, the cats, the rats.
                 <br />
-                <span className="text-primary font-semibold">
+                <span className="text-blue-800 font-semibold">
                   Now a hidden bird resurfaces to lead the meme-verse revival.
                 </span>
               </p>
               
-              <div className="flex flex-wrap gap-4 text-sm text-accent font-medium">
+              <div className="flex flex-wrap gap-4 text-sm text-slate-600 font-medium">
                 <span>✅ Fair Launch</span>
                 <span>🔥 50% Supply Burned</span>
                 <span>💸 0% Tax</span>
@@ -57,7 +84,15 @@ const Hero = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button variant="hero" size="xl" className="animate-glow">
+              <Button 
+                variant="hero" 
+                size="xl" 
+                className="animate-glow"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openSwap();
+                }}
+              >
                 Buy TENX
               </Button>
               <Button variant="outline-gold" size="xl">
@@ -66,25 +101,41 @@ const Hero = () => {
             </div>
 
             {/* Contract Info */}
-            <div className="space-y-3 pt-6 border-t border-border/50">
-              <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <span className="text-sm text-muted-foreground">Contract:</span>
-                <code className="text-xs bg-card px-2 py-1 rounded font-mono text-primary">
-                  {contractAddress}
-                </code>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => copyToClipboard(contractAddress, "Contract address")}
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-              </div>
+            <div className="space-y-4 pt-6 border-t border-border/50">
+              <Card className="card-punk">
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-slate-600">Contract Address:</span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyToClipboard(contractAddress, "Contract address")}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => window.open(`https://bscscan.com/address/${contractAddress}`, '_blank')}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <code className="block text-sm bg-white/80 px-3 py-2 rounded font-mono text-blue-800 border border-blue-200 break-all">
+                      {contractAddress}
+                    </code>
+                  </div>
+                </CardContent>
+              </Card>
               
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <span className="text-sm text-muted-foreground">Burn TX:</span>
-                <code className="text-xs bg-card px-2 py-1 rounded font-mono text-accent">
+                <span className="text-sm text-slate-600">Burn TX:</span>
+                <code className="text-xs bg-white/80 px-2 py-1 rounded font-mono text-amber-600 border border-amber-200">
                   {burnTxHash}
                 </code>
                 <Button
@@ -104,9 +155,9 @@ const Hero = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-punk opacity-20 rounded-full blur-2xl scale-110 animate-pulse" />
               <img
-                src={mascotHero}
+                src={mascotFlying}
                 alt="TENX Renaissance Mascot"
-                className="relative w-80 lg:w-96 h-auto animate-float drop-shadow-2xl"
+                className="relative w-96 lg:w-[28rem] h-auto animate-float drop-shadow-2xl"
               />
             </div>
           </div>

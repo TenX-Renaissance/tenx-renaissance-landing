@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Rocket, Target, Crown, Zap } from "lucide-react";
-import mascotFlying from "@/assets/mascot-flying.png";
+import mascotSkateboard from "@/assets/mascot-scateboard.png";
 
 const Roadmap = () => {
   const phases = [
@@ -82,7 +82,7 @@ const Roadmap = () => {
   };
 
   return (
-    <section className="py-24 px-4 relative">
+    <section id="roadmap" className="py-24 px-4 relative">
       <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-background to-primary/5" />
       
       <div className="relative container mx-auto max-w-6xl">
@@ -91,9 +91,9 @@ const Roadmap = () => {
             The Path to Renaissance
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-black mb-6">
-            <span className="renaissance-accent">Renaissance</span>
+            <span className="text-amber-500">Renaissance</span>
             <br />
-            <span className="punk-title">Plan</span>
+            <span className="text-blue-600">Plan</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Our journey from hidden bird to meme legend. Each phase brings us closer to renaissance.
@@ -158,9 +158,9 @@ const Roadmap = () => {
               </div>
               <div className="flex justify-center">
                 <img
-                  src={mascotFlying}
-                  alt="TENX Flying Mascot"
-                  className="w-48 h-auto animate-float"
+                  src={mascotSkateboard}
+                  alt="TENX Skateboard Mascot"
+                  className="w-56 h-auto animate-float"
                 />
               </div>
             </div>

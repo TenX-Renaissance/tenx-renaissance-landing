@@ -1,8 +1,27 @@
-# Welcome to your Lovable project
+# TENX Renaissance Landing Page
 
-## Project info
+A modern, responsive landing page for the TENX Renaissance token - a community-first memecoin with fair launch mechanics.
 
-**URL**: https://lovable.dev/projects/9e25f69d-9b43-470a-a8ec-a848babb562b
+## 🚀 Live Site
+
+**URL**: https://tenx-renaissance-landing.vercel.app
+
+## 📋 Project Overview
+
+This landing page showcases the TENX Renaissance token with:
+
+- **Hero Section**: Contract address display with copy functionality and PancakeSwap integration
+- **About Section**: Token description with animated coin image
+- **Features**: Key token benefits and mechanics
+- **Tokenomics**: Token distribution and economics
+- **How to Buy**: Step-by-step purchasing guide with embedded PancakeSwap widget
+- **Roadmap**: Project milestones and future plans
+- **FAQ**: Frequently asked questions
+- **Footer**: Social links and contract information
+
+## 🔗 Related Repositories
+
+- **Smart Contracts**: https://github.com/TenX-Renaissance/token
 
 ## How can I edit this code?
 

@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, DollarSign, RefreshCw, Users } from "lucide-react";
+import { useSwap } from "@/contexts/SwapContext";
 
 const HowToBuy = () => {
+  const { openSwap } = useSwap();
   const steps = [
     {
       step: "1",
@@ -36,7 +38,7 @@ const HowToBuy = () => {
   ];
 
   return (
-    <section className="py-24 px-4 relative">
+    <section id="how-to-buy" className="py-24 px-4 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-card/20 to-background/50" />
       
       <div className="relative container mx-auto max-w-6xl">
@@ -45,9 +47,9 @@ const HowToBuy = () => {
             Get Started in 4 Simple Steps
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-black mb-6">
-            <span className="renaissance-accent">How to Buy</span>
+            <span className="text-amber-500">How to Buy</span>
             <br />
-            <span className="punk-title">TENX</span>
+            <span className="text-blue-600">TENX</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Ready to join the renaissance? Follow these simple steps to get your TENX tokens.
@@ -102,7 +104,14 @@ const HowToBuy = () => {
                 The renaissance is calling. Will you answer?
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="hero" size="lg">
+                <Button 
+                  variant="hero" 
+                  size="lg"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openSwap();
+                  }}
+                >
                   Buy TENX Now
                 </Button>
                 <Button variant="outline-gold" size="lg">

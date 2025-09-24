@@ -31,15 +31,15 @@ const Features = () => {
   ];
 
   return (
-    <section className="py-24 px-4 relative">
+    <section id="features" className="py-24 px-4 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-card/20" />
       
       <div className="relative container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-black mb-6">
-            <span className="punk-title">The Meme-Renaissance</span>
+            <span className="text-blue-600">The Meme-Renaissance</span>
             <br />
-            <span className="renaissance-accent">Takes Flight</span>
+            <span className="text-amber-500">Takes Flight</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             TENX is a community-first memecoin mixing punk attitude with renaissance flair.

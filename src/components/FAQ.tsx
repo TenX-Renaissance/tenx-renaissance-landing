@@ -40,7 +40,7 @@ const FAQ = () => {
   ];
 
   return (
-    <section className="py-24 px-4 relative">
+    <section id="faq" className="py-24 px-4 relative">
       <div className="absolute inset-0 bg-gradient-to-t from-background to-card/10" />
       
       <div className="relative container mx-auto max-w-4xl">
@@ -49,7 +49,7 @@ const FAQ = () => {
             Got Questions?
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-black mb-6">
-            <span className="punk-title">FAQ</span>
+            <span className="text-blue-600">FAQ</span>
           </h2>
           <p className="text-xl text-muted-foreground">
             Everything you need to know about the TENX Renaissance
@@ -75,19 +75,6 @@ const FAQ = () => {
                 </AccordionItem>
               ))}
             </Accordion>
-          </CardContent>
-        </Card>
-
-        {/* Disclaimer */}
-        <Card className="card-punk mt-12 border-destructive/20">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-bold text-destructive mb-4">⚠️ Important Disclaimer</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              TENX is a meme token created for entertainment purposes only. It has no intrinsic value, 
-              no expectation of profit, and no formal roadmap or obligations. Cryptocurrency investments 
-              are highly volatile and risky. Do not risk funds you can't afford to lose. Always verify 
-              the contract address and do your own research before making any transactions.
-            </p>
           </CardContent>
         </Card>
       </div>
