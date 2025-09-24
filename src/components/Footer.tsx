@@ -60,7 +60,7 @@ const Footer = () => {
                   and help steer the renaissance.
                 </p>
                 
-                <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="flex flex-wrap gap-4 mb-8 justify-center lg:justify-start">
                   {socialLinks.map((link, index) => (
                     <Button
                       key={index}
