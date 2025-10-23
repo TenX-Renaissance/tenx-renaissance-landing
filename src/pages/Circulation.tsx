@@ -21,13 +21,6 @@ const Circulation = () => {
       if (typeof window !== "undefined" && (window as any).ethereum) {
         try {
           // Get the current circulation supply by calling balanceOf on the deployer
-          // Since only the deployer has cold balance, the circulation is the deployer's reflection balance
-          // plus any tokens transferred to other wallets
-          
-          // For now, we'll use a simplified approach - in a real implementation,
-          // you'd need to track all transfers and calculate total circulation
-          
-          // This is a placeholder - you'd implement proper Web3 calls here
           const deployerAddress = "0xE4D55a5F102d44AE2f042d5dd5a6D249847aaCAf";
           
           // Call balanceOf on the contract
@@ -65,23 +58,24 @@ const Circulation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="text-center">
+    <div style={{ 
+      backgroundColor: '#EBF0F7', 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      <div style={{ textAlign: 'center' }}>
         {loading ? (
-          <div className="animate-pulse">
-            <div className="h-16 bg-gray-200 rounded mb-8 w-96 mx-auto"></div>
+          <div style={{ fontSize: '48px', color: '#333', marginBottom: '20px' }}>
+            Loading...
           </div>
         ) : (
-          <h1 className="text-6xl font-mono text-gray-800 mb-8">
+          <div style={{ fontSize: '48px', color: '#333', marginBottom: '20px' }}>
             {circulationSupply}
-          </h1>
+          </div>
         )}
-        <p className="text-gray-600 text-lg">
-          TENX Circulation Supply
-        </p>
-        <p className="text-gray-500 text-sm mt-2">
-          Updates every 30 seconds
-        </p>
       </div>
     </div>
   );
