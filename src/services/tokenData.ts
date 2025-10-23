@@ -51,6 +51,11 @@ export class TokenDataService {
           // Convert hex to decimal
           const balanceDecimal = parseInt(balance, 16).toString();
           
+          // Validate the balance
+          if (isNaN(parseInt(balanceDecimal))) {
+            throw new Error("Invalid balance received from contract");
+          }
+          
           // Calculate other values based on known contract state
           const circulationSupply = balanceDecimal;
           const totalSupply = "1000000000000000000000000000000"; // 1e30

@@ -7,8 +7,16 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, ExternalLink, Copy, Wallet, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { TokenDataService } from "@/services/tokenData";
+
+// Web3 types
+interface WindowWithEthereum extends Window {
+  ethereum?: {
+    request: (args: { method: string; params?: any[] }) => Promise<any>;
+    on: (event: string, callback: (...args: any[]) => void) => void;
+    removeListener: (event: string, callback: (...args: any[]) => void) => void;
+  };
+}
 
 const TokenSummary = () => {
   const [tokenData, setTokenData] = useState({
@@ -19,10 +27,9 @@ const TokenSummary = () => {
   const [loading, setLoading] = useState(true);
   const [unfreezeAmount, setUnfreezeAmount] = useState<string>("");
   const [isUnfreezing, setIsUnfreezing] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string>("");
   
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -31,13 +38,103 @@ const TokenSummary = () => {
 
   useEffect(() => {
     fetchSupplyData();
+    checkWalletConnection();
   }, []);
+
+  const checkWalletConnection = async () => {
+    if (typeof window !== "undefined" && (window as WindowWithEthereum).ethereum) {
+      try {
+        const accounts = await (window as WindowWithEthereum).ethereum!.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length > 0) {
+          setWalletConnected(true);
+          setWalletAddress(accounts[0]);
+        }
+      } catch (error) {
+        console.error("Error checking wallet connection:", error);
+      }
+    }
+  };
+
+  const connectWallet = async () => {
+    if (typeof window !== "undefined" && (window as WindowWithEthereum).ethereum) {
+      try {
+        // Request account access
+        const accounts = await (window as WindowWithEthereum).ethereum!.request({
+          method: "eth_requestAccounts",
+        });
+        
+        if (accounts && accounts.length > 0) {
+          setWalletConnected(true);
+          setWalletAddress(accounts[0]);
+          toast({
+            title: "Wallet Connected",
+            description: `Connected to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
+          });
+          
+          // Listen for account changes
+          (window as WindowWithEthereum).ethereum!.on('accountsChanged', (newAccounts: string[]) => {
+            if (newAccounts.length > 0) {
+              setWalletAddress(newAccounts[0]);
+            } else {
+              setWalletConnected(false);
+              setWalletAddress("");
+            }
+          });
+          
+          // Listen for chain changes
+          (window as WindowWithEthereum).ethereum!.on('chainChanged', () => {
+            // Refresh the page when chain changes
+            window.location.reload();
+          });
+          
+        } else {
+          throw new Error("No accounts returned");
+        }
+      } catch (error: any) {
+        console.error("Error connecting wallet:", error);
+        
+        if (error.code === 4001) {
+          toast({
+            title: "Connection Rejected",
+            description: "Please connect your wallet to continue",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Connection Failed",
+            description: error.message || "Failed to connect wallet",
+            variant: "destructive",
+          });
+        }
+      }
+    } else {
+      toast({
+        title: "No Wallet Found",
+        description: "Please install MetaMask or another Web3 wallet",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const disconnectWallet = () => {
+    setWalletConnected(false);
+    setWalletAddress("");
+    toast({
+      title: "Wallet Disconnected",
+      description: "Wallet has been disconnected",
+    });
+  };
 
   const fetchSupplyData = async () => {
     try {
       setLoading(true);
       const tokenService = TokenDataService.getInstance();
       const data = await tokenService.getTokenData();
+      
+      console.log("Token data received:", data); // Debug log
+      
       setTokenData(data);
     } catch (error) {
       console.error("Error fetching supply data:", error);
@@ -52,6 +149,11 @@ const TokenSummary = () => {
   };
 
   const formatNumber = (value: string) => {
+    // Handle NaN or invalid values
+    if (!value || value === "0" || value === "NaN" || isNaN(parseFloat(value))) {
+      return "0";
+    }
+    
     const num = parseFloat(value);
     if (num >= 1e24) {
       return (num / 1e24).toFixed(2) + "T";
@@ -74,7 +176,7 @@ const TokenSummary = () => {
   };
 
   const unfreezeTokens = async () => {
-    if (!isConnected) {
+    if (!walletConnected) {
       toast({
         title: "Wallet Not Connected",
         description: "Please connect your wallet first",
@@ -109,7 +211,7 @@ const TokenSummary = () => {
         }
       ];
 
-      // Call the unfreeze function using wagmi
+      // Call the unfreeze function using Web3
       // This is a simplified implementation - you'd need proper contract interaction
       toast({
         title: "Transaction Sent",
@@ -168,31 +270,31 @@ const TokenSummary = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isConnected ? (
+            {walletConnected ? (
               <div className="flex items-center gap-4">
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
                   Connected
                 </Badge>
                 <code className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-800 font-mono">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                  {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </code>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => copyToClipboard(address || "", "Wallet address")}
+                  onClick={() => copyToClipboard(walletAddress, "Wallet address")}
                 >
                   <Copy className="w-3 h-3" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => disconnect()}
+                  onClick={disconnectWallet}
                 >
                   Disconnect
                 </Button>
               </div>
             ) : (
-              <Button onClick={() => connect()} className="flex items-center gap-2">
+              <Button onClick={connectWallet} className="flex items-center gap-2">
                 <Wallet className="w-4 h-4" />
                 Connect Wallet
               </Button>
@@ -303,7 +405,7 @@ const TokenSummary = () => {
         </div>
 
         {/* Unfreeze Section - Only show if wallet is connected */}
-        {isConnected && (
+        {walletConnected && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
