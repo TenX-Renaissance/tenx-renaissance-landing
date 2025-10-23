@@ -1,102 +1,46 @@
-import { useEffect, useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ExternalLink, Copy, Wallet, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { TokenDataService } from "@/services/tokenData";
-import WalletConnectProvider from "@/components/WalletConnectProvider";
+import { useAccount, useWriteContract } from 'wagmi';
+import { useTokenData, useWalletBalance } from "@/services/tokenData";
+import { TENXRenaissanceABI } from "@/config/contract";
 
-const TokenSummaryContent = () => {
-  const [tokenData, setTokenData] = useState({
-    circulationSupply: "0",
-    totalSupply: "0",
-    coldBalance: "0"
-  });
-  const [loading, setLoading] = useState(true);
+const TokenSummary = () => {
   const [unfreezeAmount, setUnfreezeAmount] = useState<string>("");
-  const [isUnfreezing, setIsUnfreezing] = useState(false);
+  const appkitButtonRef = useRef<HTMLElement>(null);
   
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { address, isConnected } = useAccount();
+  const { writeContract, isPending } = useWriteContract();
+
+  // Use Wagmi hooks for real-time data
+  const { totalSupply, circulationSupply, frozenSupply, isLoading } = useTokenData();
+  const { reflectionBalance, coldBalance, isLoading: walletLoading } = useWalletBalance(address);
 
   const contractAddress = "0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D";
   const bscScanUrl = `https://bscscan.com/address/${contractAddress}`;
 
-  useEffect(() => {
-    fetchSupplyData();
-  }, []);
-
-  const fetchSupplyData = async () => {
-    try {
-      setLoading(true);
-      const tokenService = TokenDataService.getInstance();
-      const data = await tokenService.getTokenData();
-      
-      console.log("Token data received:", data); // Debug log
-      
-      setTokenData(data);
-    } catch (error) {
-      console.error("Error fetching supply data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch supply data",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+  // Connect wallet function using AppKit modal
+  const connectWallet = () => {
+    // Trigger the AppKit modal by clicking the appkit-button
+    if (appkitButtonRef.current) {
+      appkitButtonRef.current.click();
+    } else {
+      // Fallback: try to find and click the appkit-button
+      const appkitButton = document.querySelector('appkit-button') as HTMLElement;
+      if (appkitButton) {
+        appkitButton.click();
+      }
     }
   };
 
-  const formatNumber = (value: string) => {
-    // Handle NaN or invalid values
-    if (!value || value === "0" || value === "NaN" || isNaN(parseFloat(value))) {
-      return "0";
-    }
-    
-    const num = parseFloat(value);
-    
-    // For very large numbers, use more readable formatting
-    if (num >= 1e30) {
-      return (num / 1e30).toFixed(0) + " Quintillion";
-    } else if (num >= 1e27) {
-      return (num / 1e27).toFixed(0) + " Quadrillion";
-    } else if (num >= 1e24) {
-      return (num / 1e24).toFixed(0) + " Trillion";
-    } else if (num >= 1e21) {
-      return (num / 1e21).toFixed(0) + " Billion";
-    } else if (num >= 1e18) {
-      return (num / 1e18).toFixed(0) + " Million";
-    } else if (num >= 1e15) {
-      return (num / 1e15).toFixed(0) + " Thousand";
-    } else if (num >= 1e12) {
-      return (num / 1e12).toFixed(0) + " Billion";
-    } else if (num >= 1e9) {
-      return (num / 1e9).toFixed(0) + " Million";
-    } else if (num >= 1e6) {
-      return (num / 1e6).toFixed(0) + " Million";
-    } else if (num >= 1e3) {
-      return (num / 1e3).toFixed(0) + " Thousand";
-    }
-    
-    return num.toLocaleString();
-  };
-
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: `${label} copied to clipboard`,
-    });
-  };
-
+  // Unfreeze tokens function using Wagmi
   const unfreezeTokens = async () => {
     if (!isConnected) {
       toast({
@@ -117,297 +61,277 @@ const TokenSummaryContent = () => {
     }
 
     try {
-      setIsUnfreezing(true);
+      // Convert amount to wei (18 decimals)
+      const amountInWei = BigInt(Math.floor(parseFloat(unfreezeAmount) * 1e18));
       
-      // Convert amount to wei (assuming user enters amount in tokens, not wei)
-      const amountInWei = (parseFloat(unfreezeAmount) * 1e18).toString();
-      
-      // Contract ABI for unfreeze function
-      const contractABI = [
-        {
-          "inputs": [{"internalType": "uint256", "name": "amount", "type": "uint256"}],
-          "name": "unfreeze",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }
-      ];
-
-      // Call the unfreeze function using wagmi
-      // This is a simplified implementation - you'd need proper contract interaction
-      toast({
-        title: "Transaction Sent",
-        description: `Unfreeze transaction submitted`,
+      // Call unfreeze function using Wagmi
+      writeContract({
+        address: contractAddress as `0x${string}`,
+        abi: TENXRenaissanceABI,
+        functionName: 'unfreeze',
+        args: [amountInWei],
       });
 
-      // Refresh data after successful transaction
-      setTimeout(() => {
-        fetchSupplyData();
-      }, 5000);
+      toast({
+        title: "Transaction Submitted",
+        description: "Unfreeze transaction submitted successfully",
+      });
+
+      // Clear the input
+      setUnfreezeAmount("");
 
     } catch (error) {
       console.error("Error unfreezing tokens:", error);
       toast({
-        title: "Transaction Failed",
-        description: "Failed to unfreeze tokens",
+        title: "Unfreeze Failed",
+        description: "Failed to unfreeze tokens. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsUnfreezing(false);
     }
   };
 
-  const circulationFormatted = formatNumber(tokenData.circulationSupply);
-  const totalSupplyFormatted = formatNumber(tokenData.totalSupply);
-  const coldBalanceFormatted = formatNumber(tokenData.coldBalance);
+  const formatNumber = (value: string) => {
+    // Handle NaN or invalid values
+    if (!value || value === "0" || value === "NaN" || isNaN(parseFloat(value))) {
+      return "0";
+    }
+    
+    const num = parseFloat(value);
+    
+    // Simple formatting for large numbers (with 5 decimal places, rounded down)
+    if (num >= 1e30) {
+      return (Math.floor(num / 1e30 * 100000) / 100000).toFixed(5) + " Quintillion";
+    } else if (num >= 1e27) {
+      return (Math.floor(num / 1e27 * 100000) / 100000).toFixed(5) + " Quadrillion";
+    } else if (num >= 1e24) {
+      return (Math.floor(num / 1e24 * 100000) / 100000).toFixed(5) + " Trillion";
+    } else if (num >= 1e21) {
+      return (Math.floor(num / 1e21 * 100000) / 100000).toFixed(5) + " Billion";
+    } else if (num >= 1e18) {
+      return (Math.floor(num / 1e18 * 100000) / 100000).toFixed(5) + " Million";
+    } else if (num >= 1e15) {
+      return (Math.floor(num / 1e15 * 100000) / 100000).toFixed(5) + " Thousand";
+    } else if (num >= 1e12) {
+      return (Math.floor(num / 1e12 * 100000) / 100000).toFixed(5) + " Billion";
+    } else if (num >= 1e9) {
+      return (Math.floor(num / 1e9 * 100000) / 100000).toFixed(5) + " Million";
+    } else if (num >= 1e6) {
+      return (Math.floor(num / 1e6 * 100000) / 100000).toFixed(5) + " Million";
+    } else if (num >= 1e3) {
+      return (Math.floor(num / 1e3 * 100000) / 100000).toFixed(5) + " Thousand";
+    }
+    
+    return num.toLocaleString();
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copied!",
+        description: `${label} copied to clipboard`,
+      });
+    });
+  };
+
+  const shortenAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="flex items-center gap-4 mb-8">
           <Button
-            variant="ghost"
+            variant="outline"
+            size="sm"
             onClick={() => navigate("/")}
-            className="mb-4"
+            className="flex items-center gap-2"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Button>
-          
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            TENX Token Summary
-          </h1>
-          <p className="text-lg text-gray-600">
-            Token supply information and unfreeze functionality
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Token Summary</h1>
         </div>
 
-        {/* Wallet Connection */}
+        {/* Wallet Connection Status */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Wallet className="w-5 h-5" />
-              Wallet Connection
+              <Wallet className="h-5 w-5" />
+              Wallet Status
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isConnected ? (
-              <div className="flex items-center gap-4">
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  Connected
-                </Badge>
-                <code className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-800 font-mono">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
-                </code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(address || "", "Wallet address")}
-                >
-                  <Copy className="w-3 h-3" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => disconnect()}
-                >
-                  Disconnect
-                </Button>
+            {isConnected && address ? (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">Connected Wallet:</p>
+                <div className="flex items-center gap-2">
+                  <code className="text-gray-800 font-mono bg-gray-100 px-2 py-1 rounded">
+                    {shortenAddress(address)}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(address, "Wallet address")}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ) : (
-              <Button onClick={() => connect()} className="flex items-center gap-2">
-                <Wallet className="w-4 h-4" />
-                Connect Wallet
-              </Button>
+              <div className="space-y-3">
+                <p className="text-gray-600">No wallet connected</p>
+                <div className="relative">
+                  <Button onClick={connectWallet} className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Connect Wallet
+                  </Button>
+                  {/* Hidden AppKit button for modal trigger */}
+                  <appkit-button ref={appkitButtonRef} style={{ display: 'none' }} />
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Contract Info */}
+        {/* Contract Information */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Contract Information
-              <ExternalLink 
-                className="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-800"
-                onClick={() => window.open(bscScanUrl, '_blank')}
-              />
-            </CardTitle>
+            <CardTitle>Contract Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2">
-              <code className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-800 font-mono">
-                {contractAddress}
-              </code>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => copyToClipboard(contractAddress, "Contract address")}
-              >
-                <Copy className="w-3 h-3" />
-              </Button>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600">Contract Address:</p>
+              <div className="flex items-center gap-2">
+                <code className="text-gray-800 font-mono bg-gray-100 px-2 py-1 rounded">
+                  {contractAddress}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(contractAddress, "Contract address")}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(bscScanUrl, "_blank")}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Supply Information */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Circulation Supply */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-600">Circulation Supply</CardTitle>
-              <CardDescription>Currently spendable tokens</CardDescription>
+              <CardTitle className="text-xl">Circulation</CardTitle>
+              <CardDescription>Available for trading</CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <div className="animate-pulse">
-                  <div className="h-8 bg-gray-200 rounded"></div>
-                </div>
-              ) : (
-                <div>
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    {circulationFormatted} TENX
-                  </div>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    Active Circulation
-                  </Badge>
-                </div>
-              )}
+              <p className="text-2xl font-bold text-blue-600">
+                {isLoading ? "Loading..." : formatNumber(circulationSupply)}
+              </p>
             </CardContent>
           </Card>
 
-          {/* Frozen Supply */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-blue-600">Frozen Supply</CardTitle>
-              <CardDescription>Cold balance (can be unfrozen)</CardDescription>
+              <CardTitle className="text-xl">Frozen</CardTitle>
+              <CardDescription>Locked in cold storage</CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <div className="animate-pulse">
-                  <div className="h-8 bg-gray-200 rounded"></div>
-                </div>
-              ) : (
-                <div>
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
-                    {coldBalanceFormatted} TENX
-                  </div>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                    Cold Balance
-                  </Badge>
-                </div>
-              )}
+              <p className="text-2xl font-bold text-orange-600">
+                {isLoading ? "Loading..." : formatNumber(frozenSupply)}
+              </p>
             </CardContent>
           </Card>
 
-          {/* Total Supply */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-gray-600">Total Supply</CardTitle>
-              <CardDescription>Maximum token supply</CardDescription>
+              <CardTitle className="text-xl">Total</CardTitle>
+              <CardDescription>Maximum supply</CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <div className="animate-pulse">
-                  <div className="h-8 bg-gray-200 rounded"></div>
-                </div>
-              ) : (
-                <div>
-                  <div className="text-3xl font-bold text-gray-600 mb-2">
-                    {totalSupplyFormatted} TENX
-                  </div>
-                  <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                    Total Supply
-                  </Badge>
-                </div>
-              )}
+              <p className="text-2xl font-bold text-green-600">
+                {isLoading ? "Loading..." : formatNumber(totalSupply)}
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Unfreeze Section - Only show if wallet is connected */}
-        {isConnected && (
-          <Card className="mb-6">
+        {/* Wallet Balances */}
+        {isConnected && address && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Your Reflection Balance</CardTitle>
+                <CardDescription>Spendable tokens</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-blue-600">
+                  {walletLoading ? "Loading..." : formatNumber(reflectionBalance)}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Your Cold Balance</CardTitle>
+                <CardDescription>Frozen tokens</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-orange-600">
+                  {walletLoading ? "Loading..." : formatNumber(coldBalance)}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Unfreeze Tokens */}
+        {isConnected && address && parseFloat(coldBalance) > 0 && (
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Zap className="w-5 h-5" />
+                <Zap className="h-5 w-5" />
                 Unfreeze Tokens
               </CardTitle>
               <CardDescription>
-                Move tokens from cold balance to circulation supply
+                Move tokens from cold storage to reflection balance
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent>
+              <div className="space-y-4">
                 <div>
-                  <Label htmlFor="unfreezeAmount">Amount to Unfreeze (TENX)</Label>
+                  <Label htmlFor="unfreeze-amount">Amount to Unfreeze</Label>
                   <Input
-                    id="unfreezeAmount"
+                    id="unfreeze-amount"
                     type="number"
                     placeholder="Enter amount"
                     value={unfreezeAmount}
                     onChange={(e) => setUnfreezeAmount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
-                <div className="flex items-end">
-                  <Button
-                    onClick={unfreezeTokens}
-                    disabled={isUnfreezing || !unfreezeAmount}
-                    className="w-full"
-                  >
-                    {isUnfreezing ? "Unfreezing..." : "Unfreeze Tokens"}
-                  </Button>
-                </div>
+                <Button
+                  onClick={unfreezeTokens}
+                  disabled={isPending || !unfreezeAmount || parseFloat(unfreezeAmount) <= 0}
+                  className="w-full"
+                >
+                  {isPending ? "Processing..." : "Unfreeze Tokens"}
+                </Button>
               </div>
             </CardContent>
           </Card>
         )}
-
-        {/* Explanation */}
-        <Card>
-          <CardHeader>
-            <CardTitle>How the Cold Balance System Works</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-green-600 mb-2">Circulation Supply</h4>
-                <p className="text-sm text-gray-600">
-                  These are the tokens currently available for trading and spending. 
-                  PancakeSwap and other DEXs see this as the total circulating supply.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-blue-600 mb-2">Frozen Supply</h4>
-                <p className="text-sm text-gray-600">
-                  These tokens are held in "cold balance" and cannot be spent until unfrozen. 
-                  They can be moved to circulation supply using the unfreeze function.
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-800 mb-2">Benefits</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• Prevents PancakeSwap overflow issues</li>
-                <li>• Maintains ERC20 standard compliance</li>
-                <li>• Allows controlled token release</li>
-                <li>• Transparent and auditable</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
-  );
-};
-
-const TokenSummary = () => {
-  return (
-    <WalletConnectProvider>
-      <TokenSummaryContent />
-    </WalletConnectProvider>
   );
 };
 

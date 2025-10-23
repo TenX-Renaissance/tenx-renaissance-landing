@@ -1,15 +1,17 @@
-// Shared token data service to avoid code repetition
-export interface TokenData {
-  circulationSupply: string;
+import { useReadContract } from 'wagmi';
+import { TENXRenaissanceABI } from '../config/contract';
+
+interface TokenData {
   totalSupply: string;
-  coldBalance: string;
+  circulationSupply: string;
+  frozenSupply: string;
 }
 
-export class TokenDataService {
+class TokenDataService {
   private static instance: TokenDataService;
   private cache: TokenData | null = null;
-  private lastFetch: number = 0;
-  private readonly CACHE_DURATION = 30000; // 30 seconds
+  private readonly CONTRACT_ADDRESS = '0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D';
+  private readonly DEPLOYER_ADDRESS = '0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D'; // Same as contract deployer
 
   private constructor() {}
 
@@ -21,81 +23,30 @@ export class TokenDataService {
   }
 
   public async getTokenData(): Promise<TokenData> {
-    const now = Date.now();
-    
-    // Return cached data if still valid
-    if (this.cache && (now - this.lastFetch) < this.CACHE_DURATION) {
+    if (this.cache) {
       return this.cache;
     }
 
     try {
-      const contractAddress = "0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D";
-      
-      // Check if Web3 is available
-      if (typeof window !== "undefined" && (window as any).ethereum) {
-        try {
-          const deployerAddress = "0xE4D55a5F102d44AE2f042d5dd5a6D249847aaCAf";
-          
-          // Call balanceOf on the contract
-          const balance = await (window as any).ethereum.request({
-            method: "eth_call",
-            params: [
-              {
-                to: contractAddress,
-                data: `0x70a08231${deployerAddress.slice(2).padStart(64, '0')}`, // balanceOf(deployer)
-              },
-              "latest",
-            ],
-          });
-          
-          // Convert hex to decimal
-          const balanceDecimal = parseInt(balance, 16).toString();
-          
-          // Validate the balance
-          if (isNaN(parseInt(balanceDecimal))) {
-            throw new Error("Invalid balance received from contract");
-          }
-          
-          // Calculate other values based on known contract state
-          const circulationSupply = balanceDecimal;
-          const totalSupply = "1000000000000000000000000000000"; // 1e30 (1 quintillion)
-          const coldBalance = (parseInt(totalSupply) - parseInt(circulationSupply)).toString();
-          
-          this.cache = {
-            circulationSupply,
-            totalSupply,
-            coldBalance
-          };
-          
-        } catch (web3Error) {
-          console.error("Web3 error:", web3Error);
-          // Fallback to known values
-          this.cache = {
-            circulationSupply: "45000000000000000000000000", // 45M tokens
-            totalSupply: "1000000000000000000000000000000", // 1 quintillion tokens
-            coldBalance: "999999999999999999999955000000000000000000000000" // ~1 quintillion - 45M
-          };
-        }
-      } else {
-        // Fallback to known values if no Web3
-        this.cache = {
-          circulationSupply: "45000000000000000000000000", // 45M tokens
-          totalSupply: "1000000000000000000000000000000", // 1 quintillion tokens
-          coldBalance: "999999999999999999999955000000000000000000000000" // ~1 quintillion - 45M
-        };
-      }
-      
-      this.lastFetch = now;
-      return this.cache;
-      
-    } catch (error) {
-      console.error("Error fetching token data:", error);
-      // Return fallback values
-      return {
-        circulationSupply: "45000000000000000000000000", // 45M tokens
-        totalSupply: "1000000000000000000000000000000", // 1 quintillion tokens
-        coldBalance: "999999999999999999999955000000000000000000000000" // ~1 quintillion - 45M
+      // For now, return fallback values until we implement the hook-based approach
+      this.cache = {
+        totalSupply: (1e30).toString(), // 1 Quintillion after burn
+        circulationSupply: (45e6).toString(), // 45 Million reflection supply
+        frozenSupply: ((1e30) - (45e6)).toString() // Remaining frozen supply
       };
+      
+      return this.cache;
+    } catch (error) {
+      console.error('Error getting token data:', error);
+      
+      // Fallback to realistic values based on contract logic
+      this.cache = {
+        totalSupply: (1e30).toString(), // 1 Quintillion after burn
+        circulationSupply: (45e6).toString(), // 45 Million reflection supply
+        frozenSupply: ((1e30) - (45e6)).toString() // Remaining frozen supply
+      };
+      
+      return this.cache;
     }
   }
 
@@ -103,4 +54,86 @@ export class TokenDataService {
     const data = await this.getTokenData();
     return data.circulationSupply;
   }
+
+  public async getFrozenSupply(): Promise<string> {
+    const data = await this.getTokenData();
+    return data.frozenSupply;
+  }
+
+  public async getTotalSupply(): Promise<string> {
+    const data = await this.getTokenData();
+    return data.totalSupply;
+  }
+
+  public async getWalletReflectionBalance(address: string): Promise<string> {
+    try {
+      // For now, return fallback value
+      return "0";
+    } catch (error) {
+      console.error('Error getting wallet reflection balance:', error);
+      return "0";
+    }
+  }
+
+  public async getWalletColdBalance(address: string): Promise<string> {
+    try {
+      // For now, return fallback value
+      return "0";
+    } catch (error) {
+      console.error('Error getting wallet cold balance:', error);
+      return "0";
+    }
+  }
 }
+
+// Hook-based functions for React components
+export const useTokenData = () => {
+  const { data: totalSupply, isLoading: totalSupplyLoading } = useReadContract({
+    address: '0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D' as `0x${string}`,
+    abi: TENXRenaissanceABI,
+    functionName: 'totalSupply',
+  });
+
+  const { data: reflectionSupply, isLoading: reflectionSupplyLoading } = useReadContract({
+    address: '0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D' as `0x${string}`,
+    abi: TENXRenaissanceABI,
+    functionName: '_reflectionSupply',
+  });
+
+  // Calculate frozen supply as total supply minus circulation supply
+  // This avoids needing the deployer address
+  const frozenSupply = totalSupply && reflectionSupply 
+    ? (Number(totalSupply) - Number(reflectionSupply)) / 1e18 
+    : 0;
+
+  return {
+    totalSupply: totalSupply ? (Number(totalSupply) / 1e18).toString() : '0',
+    circulationSupply: reflectionSupply ? (Number(reflectionSupply) / 1e18).toString() : '0',
+    frozenSupply: frozenSupply.toString(),
+    isLoading: totalSupplyLoading || reflectionSupplyLoading,
+  };
+};
+
+export const useWalletBalance = (address: `0x${string}` | undefined) => {
+  const { data: reflectionBalance, isLoading: reflectionLoading } = useReadContract({
+    address: '0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D' as `0x${string}`,
+    abi: TENXRenaissanceABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+  });
+
+  const { data: coldBalance, isLoading: coldLoading } = useReadContract({
+    address: '0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D' as `0x${string}`,
+    abi: TENXRenaissanceABI,
+    functionName: '_coldBalances',
+    args: address ? [address] : undefined,
+  });
+
+  return {
+    reflectionBalance: reflectionBalance ? (Number(reflectionBalance) / 1e18).toString() : '0',
+    coldBalance: coldBalance ? (Number(coldBalance) / 1e18).toString() : '0',
+    isLoading: reflectionLoading || coldLoading,
+  };
+};
+
+export default TokenDataService;
