@@ -13,8 +13,8 @@ const Hero = () => {
   const { openSwap } = useSwap();
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
 
-  const contractAddress = "0x3aE335b251b3185BEE64c710cA94F11B5EBAd86e";
-  const burnTxHash = "0x9e319c249eac2a7564c30203e54c2dc0ad36fee0a821b1cefbb9ee62701fe618";
+  const contractAddress = "0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D";
+  const burnTxHash = "0x7bd3b8e83cd1970b1d770ce80030fd21b25bcf3430fa688feecb83fb026cf002";
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
