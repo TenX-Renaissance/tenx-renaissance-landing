@@ -115,10 +115,10 @@ const Hero = () => {
                 size="xl"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate("/circulation");
+                  navigate("/token-summary");
                 }}
               >
-                Circulation
+                Token Summary
               </Button>
             </div>
 
