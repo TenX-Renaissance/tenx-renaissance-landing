@@ -239,7 +239,7 @@ const TokenSummary = () => {
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
                   Connected
                 </Badge>
-                <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+                <code className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-800 font-mono">
                   {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </code>
                 <Button
@@ -272,7 +272,7 @@ const TokenSummary = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+              <code className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-800 font-mono">
                 {contractAddress}
               </code>
               <Button
