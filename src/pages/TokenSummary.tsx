@@ -7,16 +7,9 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, ExternalLink, Copy, Wallet, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { TokenDataService } from "@/services/tokenData";
-
-// Web3 types
-interface WindowWithEthereum extends Window {
-  ethereum?: {
-    request: (args: { method: string; params?: any[] }) => Promise<any>;
-    on: (event: string, callback: (...args: any[]) => void) => void;
-    removeListener: (event: string, callback: (...args: any[]) => void) => void;
-  };
-}
+import WalletConnectProvider from "@/components/WalletConnectProvider";
 
 const TokenSummary = () => {
   const [tokenData, setTokenData] = useState({
@@ -155,15 +148,30 @@ const TokenSummary = () => {
     }
     
     const num = parseFloat(value);
-    if (num >= 1e24) {
-      return (num / 1e24).toFixed(2) + "T";
+    
+    // For very large numbers, use more readable formatting
+    if (num >= 1e30) {
+      return (num / 1e30).toFixed(0) + " Quintillion";
+    } else if (num >= 1e27) {
+      return (num / 1e27).toFixed(0) + " Quadrillion";
+    } else if (num >= 1e24) {
+      return (num / 1e24).toFixed(0) + " Trillion";
     } else if (num >= 1e21) {
-      return (num / 1e21).toFixed(2) + "B";
+      return (num / 1e21).toFixed(0) + " Billion";
     } else if (num >= 1e18) {
-      return (num / 1e18).toFixed(2) + "M";
+      return (num / 1e18).toFixed(0) + " Million";
     } else if (num >= 1e15) {
-      return (num / 1e15).toFixed(2) + "K";
+      return (num / 1e15).toFixed(0) + " Thousand";
+    } else if (num >= 1e12) {
+      return (num / 1e12).toFixed(0) + " Billion";
+    } else if (num >= 1e9) {
+      return (num / 1e9).toFixed(0) + " Million";
+    } else if (num >= 1e6) {
+      return (num / 1e6).toFixed(0) + " Million";
+    } else if (num >= 1e3) {
+      return (num / 1e3).toFixed(0) + " Thousand";
     }
+    
     return num.toLocaleString();
   };
 

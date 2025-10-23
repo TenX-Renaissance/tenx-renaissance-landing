@@ -58,7 +58,7 @@ export class TokenDataService {
           
           // Calculate other values based on known contract state
           const circulationSupply = balanceDecimal;
-          const totalSupply = "1000000000000000000000000000000"; // 1e30
+          const totalSupply = "1000000000000000000000000000000"; // 1e30 (1 quintillion)
           const coldBalance = (parseInt(totalSupply) - parseInt(circulationSupply)).toString();
           
           this.cache = {
@@ -71,17 +71,17 @@ export class TokenDataService {
           console.error("Web3 error:", web3Error);
           // Fallback to known values
           this.cache = {
-            circulationSupply: "45000000000000000000000000",
-            totalSupply: "1000000000000000000000000000000",
-            coldBalance: "999999999999999999999955000000000000000000000000"
+            circulationSupply: "45000000000000000000000000", // 45M tokens
+            totalSupply: "1000000000000000000000000000000", // 1 quintillion tokens
+            coldBalance: "999999999999999999999955000000000000000000000000" // ~1 quintillion - 45M
           };
         }
       } else {
         // Fallback to known values if no Web3
         this.cache = {
-          circulationSupply: "45000000000000000000000000",
-          totalSupply: "1000000000000000000000000000000",
-          coldBalance: "999999999999999999999955000000000000000000000000"
+          circulationSupply: "45000000000000000000000000", // 45M tokens
+          totalSupply: "1000000000000000000000000000000", // 1 quintillion tokens
+          coldBalance: "999999999999999999999955000000000000000000000000" // ~1 quintillion - 45M
         };
       }
       
@@ -92,9 +92,9 @@ export class TokenDataService {
       console.error("Error fetching token data:", error);
       // Return fallback values
       return {
-        circulationSupply: "45000000000000000000000000",
-        totalSupply: "1000000000000000000000000000000",
-        coldBalance: "999999999999999999999955000000000000000000000000"
+        circulationSupply: "45000000000000000000000000", // 45M tokens
+        totalSupply: "1000000000000000000000000000000", // 1 quintillion tokens
+        coldBalance: "999999999999999999999955000000000000000000000000" // ~1 quintillion - 45M
       };
     }
   }
