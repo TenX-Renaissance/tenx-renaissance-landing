@@ -7,11 +7,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useSwap } from "@/contexts/SwapContext";
 import ChartModal from "@/components/ChartModal";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const { toast } = useToast();
   const { openSwap } = useSwap();
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const contractAddress = "0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D";
   const burnTxHash = "0x7bd3b8e83cd1970b1d770ce80030fd21b25bcf3430fa688feecb83fb026cf002";
@@ -107,6 +109,16 @@ const Hero = () => {
                 }}
               >
                 View Chart
+              </Button>
+              <Button 
+                variant="outline" 
+                size="xl"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/circulation");
+                }}
+              >
+                Circulation
               </Button>
             </div>
 
