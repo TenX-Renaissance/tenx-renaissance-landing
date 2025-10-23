@@ -9,15 +9,14 @@ export const projectId = '52730a62d9934dae769c91899275b45b'
 const metadata = {
   name: 'TENX Renaissance',
   description: 'TENX Renaissance Token',
-  url: 'https://tencoin.site', // origin must match your domain & subdomain
+  url: 'https://tencoin.site',
   icons: ['https://tencoin.site/favicon.ico']
 }
 
-// Create the modal
+// Create the modal with minimal configuration to avoid errors
 export const appKit = createAppKit({
-  adapters: [],
   projectId,
-  chains: [mainnet, arbitrum, polygon, bsc],
+  chains: [bsc],
   defaultChain: bsc,
   metadata
 })
