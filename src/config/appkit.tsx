@@ -15,7 +15,7 @@ const projectId = '52730a62d9934dae769c91899275b45b'
 const metadata = {
   name: 'TENX Renaissance',
   description: 'TENX Renaissance Token Landing Page',
-  url: 'https://tencoin.site', // origin must match your domain & subdomain
+  url: window.location.origin, // Use current origin (dev or prod)
   icons: ['https://tencoin.site/favicon.ico']
 }
 
@@ -58,4 +58,6 @@ export function AppKitProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Export the useAppKit hook
+export { useAppKit } from '@reown/appkit/react'
 export { wagmiAdapter }

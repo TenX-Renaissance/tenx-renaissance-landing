@@ -39,7 +39,7 @@ export const TENXRenaissanceABI = [
         "type": "address"
       }
     ],
-    "name": "_coldBalances",
+    "name": "coldBalanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -52,7 +52,7 @@ export const TENXRenaissanceABI = [
   },
   {
     "inputs": [],
-    "name": "_reflectionSupply",
+    "name": "reflectionSupply",
     "outputs": [
       {
         "internalType": "uint256",

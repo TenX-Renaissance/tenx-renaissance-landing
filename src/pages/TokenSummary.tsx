@@ -1,48 +1,62 @@
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, ExternalLink, Copy, Wallet, Zap } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useTokenData, useWalletBalance } from "@/services/tokenData";
 import { TENXRenaissanceABI } from "@/config/contract";
+import { AppKitProvider, useAppKit } from "@/config/appkit";
 
 const TokenSummary = () => {
   const [unfreezeAmount, setUnfreezeAmount] = useState<string>("");
-  const appkitButtonRef = useRef<HTMLElement>(null);
+  const [showUnfreezeForm, setShowUnfreezeForm] = useState<boolean>(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
   const { address, isConnected } = useAccount();
   const { writeContract, isPending } = useWriteContract();
+  const { open } = useAppKit();
+
+  // Wait for transaction receipt with 3 confirmations
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash as `0x${string}`,
+    confirmations: 3,
+  });
 
   // Use Wagmi hooks for real-time data
   const { totalSupply, circulationSupply, frozenSupply, isLoading } = useTokenData();
   const { reflectionBalance, coldBalance, isLoading: walletLoading } = useWalletBalance(address);
 
-  const contractAddress = "0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D";
+  const contractAddress = "0xc52bAFAf103d219383076F49314FFf125B337210";
   const bscScanUrl = `https://bscscan.com/address/${contractAddress}`;
+
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed && txHash) {
+      toast({
+        title: "Transaction Confirmed",
+        description: `Unfreeze completed successfully! Hash: ${txHash.slice(0, 10)}...`,
+      });
+      
+      // Clear the input and hide form
+      setUnfreezeAmount("");
+      setShowUnfreezeForm(false);
+      setTxHash(null);
+    }
+  }, [isConfirmed, txHash, toast]);
 
   // Connect wallet function using AppKit modal
   const connectWallet = () => {
-    // Trigger the AppKit modal by clicking the appkit-button
-    if (appkitButtonRef.current) {
-      appkitButtonRef.current.click();
-    } else {
-      // Fallback: try to find and click the appkit-button
-      const appkitButton = document.querySelector('appkit-button') as HTMLElement;
-      if (appkitButton) {
-        appkitButton.click();
-      }
-    }
+    open();
   };
 
-  // Unfreeze tokens function using Wagmi
+  // Unfreeze tokens function using Wagmi writeContract (AppKit integration)
   const unfreezeTokens = async () => {
-    if (!isConnected) {
+    if (!isConnected || !address) {
       toast({
         title: "Wallet Not Connected",
         description: "Please connect your wallet first",
@@ -64,29 +78,35 @@ const TokenSummary = () => {
       // Convert amount to wei (18 decimals)
       const amountInWei = BigInt(Math.floor(parseFloat(unfreezeAmount) * 1e18));
       
-      // Call unfreeze function using Wagmi
-      writeContract({
+      // Show awaiting approval message
+      toast({
+        title: "Awaiting Approval",
+        description: "Please check your wallet and approve this transaction.",
+      });
+      
+      // Use Wagmi's writeContract (integrated with AppKit)
+      const hash = await writeContract({
         address: contractAddress as `0x${string}`,
         abi: TENXRenaissanceABI,
         functionName: 'unfreeze',
         args: [amountInWei],
       });
-
+      
+      // Set transaction hash and show submitted message
+      setTxHash(hash);
       toast({
         title: "Transaction Submitted",
-        description: "Unfreeze transaction submitted successfully",
+        description: `Unfreeze transaction submitted successfully. Hash: ${hash.slice(0, 10)}...`,
       });
-
-      // Clear the input
-      setUnfreezeAmount("");
 
     } catch (error) {
       console.error("Error unfreezing tokens:", error);
       toast({
         title: "Unfreeze Failed",
-        description: "Failed to unfreeze tokens. Please try again.",
+        description: `Failed to unfreeze tokens: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
+      setTxHash(null);
     }
   };
 
@@ -187,8 +207,6 @@ const TokenSummary = () => {
                     <Wallet className="h-4 w-4" />
                     Connect Wallet
                   </Button>
-                  {/* Hidden AppKit button for modal trigger */}
-                  <appkit-button ref={appkitButtonRef} style={{ display: 'none' }} />
                 </div>
               </div>
             )}
@@ -283,56 +301,71 @@ const TokenSummary = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl">Your Cold Balance</CardTitle>
-                <CardDescription>Frozen tokens</CardDescription>
+                <CardDescription>
+                  <span className="flex items-center gap-2">
+                    Frozen tokens
+                    {parseFloat(coldBalance) > 0 && (
+                      <button 
+                        className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 cursor-pointer"
+                        onClick={() => setShowUnfreezeForm(!showUnfreezeForm)}
+                      >
+                        {showUnfreezeForm ? "Hide" : "Unfreeze"}
+                      </button>
+                    )}
+                  </span>
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-2xl font-bold text-orange-600 mb-4">
                   {walletLoading ? "Loading..." : formatNumber(coldBalance)}
                 </p>
+                
+                {/* Inline unfreeze form */}
+                {showUnfreezeForm && parseFloat(coldBalance) > 0 && (
+                  <span className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                    <Input
+                      type="number"
+                      placeholder="Amount"
+                      value={unfreezeAmount}
+                      onChange={(e) => setUnfreezeAmount(e.target.value)}
+                      className="text-sm h-8 flex-1"
+                    />
+                    <Button
+                      onClick={unfreezeTokens}
+                      disabled={isPending || isConfirming || !unfreezeAmount || parseFloat(unfreezeAmount) <= 0}
+                      size="sm"
+                      className="h-8 px-3"
+                    >
+                      {isPending ? "Awaiting Approval..." : isConfirming ? "Confirming..." : "Unfreeze"}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowUnfreezeForm(false);
+                        setUnfreezeAmount("");
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-3"
+                    >
+                      Cancel
+                    </Button>
+                  </span>
+                )}
               </CardContent>
             </Card>
           </div>
         )}
 
-        {/* Unfreeze Tokens */}
-        {isConnected && address && parseFloat(coldBalance) > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5" />
-                Unfreeze Tokens
-              </CardTitle>
-              <CardDescription>
-                Move tokens from cold storage to reflection balance
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="unfreeze-amount">Amount to Unfreeze</Label>
-                  <Input
-                    id="unfreeze-amount"
-                    type="number"
-                    placeholder="Enter amount"
-                    value={unfreezeAmount}
-                    onChange={(e) => setUnfreezeAmount(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <Button
-                  onClick={unfreezeTokens}
-                  disabled={isPending || !unfreezeAmount || parseFloat(unfreezeAmount) <= 0}
-                  className="w-full"
-                >
-                  {isPending ? "Processing..." : "Unfreeze Tokens"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
 };
 
-export default TokenSummary;
+// Wrap TokenSummary with AppKitProvider for wallet functionality
+const TokenSummaryWithProvider = () => (
+  <AppKitProvider>
+    <TokenSummary />
+  </AppKitProvider>
+);
+
+export default TokenSummaryWithProvider;
