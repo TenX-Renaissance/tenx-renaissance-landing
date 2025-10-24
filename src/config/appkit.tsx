@@ -15,7 +15,7 @@ const projectId = '52730a62d9934dae769c91899275b45b'
 const metadata = {
   name: 'TENX Renaissance',
   description: 'TENX Renaissance Token Landing Page',
-  url: window.location.origin, // Use current origin (dev or prod)
+  url: 'https://tencoin.site', // Explicit production URL
   icons: ['https://tencoin.site/favicon.ico']
 }
 
@@ -36,7 +36,7 @@ createAppKit({
   projectId,
   metadata,
   features: {
-    analytics: true // Optional - defaults to your Cloud configuration
+    analytics: false // Disable analytics to prevent blocked requests
   },
   enableWalletFeatures: {
     email: false,
