@@ -333,6 +333,9 @@ const TokenSummary = () => {
               <p className="text-2xl font-bold text-blue-600">
                 {isLoading ? "Loading..." : formatNumber(circulationSupply)}
               </p>
+              <p className="text-xs text-gray-500 mt-1">
+                45 Million (4.5e7 [7 zeros][18 decimals])
+              </p>
             </CardContent>
           </Card>
 
@@ -345,6 +348,9 @@ const TokenSummary = () => {
               <p className="text-2xl font-bold text-orange-600">
                 {isLoading ? "Loading..." : formatNumber(frozenSupply)}
               </p>
+              <p className="text-xs text-gray-500 mt-1">
+                999 Quadrillion (9.99e26 [26 zeros][18 decimals])
+              </p>
             </CardContent>
           </Card>
 
@@ -356,6 +362,9 @@ const TokenSummary = () => {
             <CardContent>
               <p className="text-2xl font-bold text-green-600">
                 {isLoading ? "Loading..." : formatNumber(totalSupply)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                1 Quintillion (1e30 [30 zeros][18 decimals])
               </p>
             </CardContent>
           </Card>
@@ -372,6 +381,9 @@ const TokenSummary = () => {
               <CardContent>
                 <p className="text-2xl font-bold text-blue-600">
                   {walletLoading ? "Loading..." : formatNumber(reflectionBalance)}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  45 Million (4.5e7 [7 zeros][18 decimals])
                 </p>
               </CardContent>
             </Card>
@@ -396,6 +408,9 @@ const TokenSummary = () => {
               <CardContent>
                 <p className="text-2xl font-bold text-orange-600 mb-4">
                   {walletLoading ? "Loading..." : formatNumber(coldBalance)}
+                </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  999 Quadrillion (9.99e26 [26 zeros][18 decimals])
                 </p>
                 
                 {/* Inline unfreeze form */}
