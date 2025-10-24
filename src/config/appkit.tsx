@@ -32,28 +32,11 @@ const wagmiAdapter = new WagmiAdapter({
 // 5. Create modal with comprehensive analytics disabling
 createAppKit({
   adapters: [wagmiAdapter],
-  networks,
   projectId,
   metadata,
   features: {
-    analytics: false, // Disable analytics to prevent blocked requests
-    email: false,
-    socials: false,
-    emailShowWallets: false
-  },
-  enableWalletFeatures: {
-    email: false,
-    socials: false,
-    emailShowWallets: false
-  },
-  enableNetworkFeatures: false,
-  enableOnramp: false,
-  enableSwap: false,
-  enableAccountView: false,
-  enableExplorer: false,
-  // Additional options to disable analytics completely
-  disableAnalytics: true,
-  disableTracking: true
+    analytics: false // Disable analytics to prevent blocked requests
+  }
 })
 
 export function AppKitProvider({ children }: { children: React.ReactNode }) {
