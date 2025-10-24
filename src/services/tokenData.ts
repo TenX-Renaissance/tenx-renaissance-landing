@@ -1,92 +1,12 @@
 import { useReadContract } from 'wagmi';
 import { TENXRenaissanceABI } from '../config/contract';
+import { formatEther } from 'viem';
 
-interface TokenData {
-  totalSupply: string;
-  circulationSupply: string;
-  frozenSupply: string;
-}
+// Use viem's formatEther for proper wei to token conversion
+const weiToTokens = (weiValue: bigint): string => {
+  return formatEther(weiValue);
+};
 
-class TokenDataService {
-  private static instance: TokenDataService;
-  private cache: TokenData | null = null;
-  private readonly CONTRACT_ADDRESS = '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7';
-  private readonly DEPLOYER_ADDRESS = '0xE4D55a5F102d44AE2f042d5dd5a6D249847aaCAf'; // Same as contract deployer
-
-  private constructor() {}
-
-  public static getInstance(): TokenDataService {
-    if (!TokenDataService.instance) {
-      TokenDataService.instance = new TokenDataService();
-    }
-    return TokenDataService.instance;
-  }
-
-  public async getTokenData(): Promise<TokenData> {
-    if (this.cache) {
-      return this.cache;
-    }
-
-    try {
-      // For now, return fallback values until we implement the hook-based approach
-      this.cache = {
-        totalSupply: (1e30).toString(), // 1 Quintillion after burn
-        circulationSupply: (45e6).toString(), // 45 Million reflection supply
-        frozenSupply: ((1e30) - (45e6)).toString() // Remaining frozen supply
-      };
-      
-      return this.cache;
-    } catch (error) {
-      console.error('Error getting token data:', error);
-      
-      // Fallback to realistic values based on contract logic
-      this.cache = {
-        totalSupply: (1e30).toString(), // 1 Quintillion after burn
-        circulationSupply: (45e6).toString(), // 45 Million reflection supply
-        frozenSupply: ((1e30) - (45e6)).toString() // Remaining frozen supply
-      };
-      
-      return this.cache;
-    }
-  }
-
-  public async getCirculationSupply(): Promise<string> {
-    const data = await this.getTokenData();
-    return data.circulationSupply;
-  }
-
-  public async getFrozenSupply(): Promise<string> {
-    const data = await this.getTokenData();
-    return data.frozenSupply;
-  }
-
-  public async getTotalSupply(): Promise<string> {
-    const data = await this.getTokenData();
-    return data.totalSupply;
-  }
-
-  public async getWalletReflectionBalance(address: string): Promise<string> {
-    try {
-      // For now, return fallback value
-      return "0";
-    } catch (error) {
-      console.error('Error getting wallet reflection balance:', error);
-      return "0";
-    }
-  }
-
-  public async getWalletColdBalance(address: string): Promise<string> {
-    try {
-      // For now, return fallback value
-      return "0";
-    } catch (error) {
-      console.error('Error getting wallet cold balance:', error);
-      return "0";
-    }
-  }
-}
-
-// Hook-based functions for React components
 export const useTokenData = () => {
   const { data: totalSupply, isLoading: totalSupplyLoading, error: totalSupplyError } = useReadContract({
     address: '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7' as `0x${string}`,
@@ -100,15 +20,15 @@ export const useTokenData = () => {
     functionName: 'reflectionSupply',
   });
 
-  // Calculate frozen supply as total supply minus circulation supply
+  // Calculate frozen supply using BigInt arithmetic
   const frozenSupply = totalSupply && reflectionSupply 
-    ? (Number(totalSupply) - Number(reflectionSupply)) / 1e18 
-    : 0;
+    ? totalSupply - reflectionSupply
+    : BigInt(0);
 
-  // Use fallback values if contract data is not available
-  const finalTotalSupply = totalSupply ? (Number(totalSupply) / 1e18).toString() : '1000000000000000000000000000000'; // 1 Quintillion
-  const finalCirculationSupply = reflectionSupply ? (Number(reflectionSupply) / 1e18).toString() : '45000000'; // 45 Million
-  const finalFrozenSupply = frozenSupply > 0 ? frozenSupply.toString() : '999999999999955000000'; // Remaining after 45M circulation
+  // Convert BigInt values to token strings with proper precision
+  const finalTotalSupply = totalSupply ? weiToTokens(totalSupply) : '0';
+  const finalCirculationSupply = reflectionSupply ? weiToTokens(reflectionSupply) : '0';
+  const finalFrozenSupply = frozenSupply > 0 ? weiToTokens(frozenSupply) : '0';
 
   return {
     totalSupply: finalTotalSupply,
@@ -134,10 +54,8 @@ export const useWalletBalance = (address: `0x${string}` | undefined) => {
   });
 
   return {
-    reflectionBalance: reflectionBalance ? (Number(reflectionBalance) / 1e18).toString() : '0',
-    coldBalance: coldBalance ? (Number(coldBalance) / 1e18).toString() : '0',
+    reflectionBalance: reflectionBalance ? weiToTokens(reflectionBalance) : '0',
+    coldBalance: coldBalance ? weiToTokens(coldBalance) : '0',
     isLoading: reflectionLoading || coldLoading,
   };
 };
-
-export default TokenDataService;

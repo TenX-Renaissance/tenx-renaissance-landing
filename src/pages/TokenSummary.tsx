@@ -32,6 +32,15 @@ const TokenSummary = () => {
   const { totalSupply, circulationSupply, frozenSupply, isLoading } = useTokenData();
   const { reflectionBalance, coldBalance, isLoading: walletLoading } = useWalletBalance(address);
 
+  // Debug logging to see raw contract data
+  console.log('=== DEBUG: Raw Contract Data ===');
+  console.log('totalSupply (raw):', totalSupply);
+  console.log('circulationSupply (raw):', circulationSupply);
+  console.log('frozenSupply (raw):', frozenSupply);
+  console.log('reflectionBalance (raw):', reflectionBalance);
+  console.log('coldBalance (raw):', coldBalance);
+  console.log('================================');
+
   const contractAddress = "0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7";
   const bscScanUrl = `https://bscscan.com/address/${contractAddress}`;
 
@@ -114,36 +123,103 @@ const TokenSummary = () => {
 
   const formatNumber = (value: string) => {
     // Handle NaN or invalid values
-    if (!value || value === "0" || value === "NaN" || isNaN(parseFloat(value))) {
+    if (!value || value === "0" || value === "NaN") {
       return "0";
     }
     
-    const num = parseFloat(value);
+    // Work with string directly to preserve precision
+    const str = value.toString();
+    const decimalIndex = str.indexOf('.');
     
-    // Simple formatting for large numbers (with 5 decimal places, rounded down)
-    if (num >= 1e30) {
-      return (Math.floor(num / 1e30 * 100000) / 100000).toFixed(5) + " Quintillion";
-    } else if (num >= 1e27) {
-      return (Math.floor(num / 1e27 * 100000) / 100000).toFixed(5) + " Quadrillion";
-    } else if (num >= 1e24) {
-      return (Math.floor(num / 1e24 * 100000) / 100000).toFixed(5) + " Trillion";
-    } else if (num >= 1e21) {
-      return (Math.floor(num / 1e21 * 100000) / 100000).toFixed(5) + " Billion";
-    } else if (num >= 1e18) {
-      return (Math.floor(num / 1e18 * 100000) / 100000).toFixed(5) + " Million";
-    } else if (num >= 1e15) {
-      return (Math.floor(num / 1e15 * 100000) / 100000).toFixed(5) + " Thousand";
-    } else if (num >= 1e12) {
-      return (Math.floor(num / 1e12 * 100000) / 100000).toFixed(5) + " Billion";
-    } else if (num >= 1e9) {
-      return (Math.floor(num / 1e9 * 100000) / 100000).toFixed(5) + " Million";
-    } else if (num >= 1e6) {
-      return (Math.floor(num / 1e6 * 100000) / 100000).toFixed(5) + " Million";
-    } else if (num >= 1e3) {
-      return (Math.floor(num / 1e3 * 100000) / 100000).toFixed(5) + " Thousand";
+    // Truncate to exactly 6 decimal places - no rounding, just cut off
+    const formatWith6Decimals = (inputStr: string): string => {
+      const dotIndex = inputStr.indexOf('.');
+      
+      if (dotIndex === -1) {
+        // No decimal point, add 6 zeros
+        return inputStr + '.' + '0'.repeat(6);
+      }
+      
+      const integerPart = inputStr.substring(0, dotIndex);
+      const decimalPart = inputStr.substring(dotIndex + 1);
+      
+      if (decimalPart.length < 6) {
+        // Not enough decimals, pad with zeros
+        return inputStr + '0'.repeat(6 - decimalPart.length);
+      } else if (decimalPart.length > 6) {
+        // Too many decimals, truncate without rounding
+        return integerPart + '.' + decimalPart.substring(0, 6);
+      }
+      
+      // Exactly 6 decimals
+      return inputStr;
+    };
+    
+    // Determine scale by string length, not by parsing to number
+    const integerPart = decimalIndex === -1 ? str : str.substring(0, decimalIndex);
+    const integerLength = integerPart.length;
+    
+    // Scale the number to appropriate unit and format with 6 decimals
+    let scaledValue: string;
+    let unit: string;
+    
+    if (integerLength >= 31) {
+      // Quintillion: divide by 1e30 (for values like 1e30 tokens)
+      const scaled = integerPart.slice(0, -30) + '.' + integerPart.slice(-30) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Quintillion";
+    } else if (integerLength >= 28) {
+      // Quadrillion: divide by 1e27
+      const scaled = integerPart.slice(0, -27) + '.' + integerPart.slice(-27) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Quadrillion";
+    } else if (integerLength >= 25) {
+      // Trillion: divide by 1e24
+      const scaled = integerPart.slice(0, -24) + '.' + integerPart.slice(-24) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Trillion";
+    } else if (integerLength >= 22) {
+      // Billion: divide by 1e21
+      const scaled = integerPart.slice(0, -21) + '.' + integerPart.slice(-21) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Billion";
+    } else if (integerLength >= 19) {
+      // Million: divide by 1e18
+      const scaled = integerPart.slice(0, -18) + '.' + integerPart.slice(-18) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Million";
+    } else if (integerLength >= 16) {
+      // Thousand: divide by 1e15
+      const scaled = integerPart.slice(0, -15) + '.' + integerPart.slice(-15) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Thousand";
+    } else if (integerLength >= 13) {
+      // Billion: divide by 1e12
+      const scaled = integerPart.slice(0, -12) + '.' + integerPart.slice(-12) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Billion";
+    } else if (integerLength >= 10) {
+      // Million: divide by 1e9
+      const scaled = integerPart.slice(0, -9) + '.' + integerPart.slice(-9) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Million";
+    } else if (integerLength >= 7) {
+      // Million: divide by 1e6
+      const scaled = integerPart.slice(0, -6) + '.' + integerPart.slice(-6) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Million";
+    } else if (integerLength >= 4) {
+      // Thousand: divide by 1e3
+      const scaled = integerPart.slice(0, -3) + '.' + integerPart.slice(-3) + (decimalIndex !== -1 ? str.substring(decimalIndex + 1) : '');
+      scaledValue = formatWith6Decimals(scaled);
+      unit = " Thousand";
+    } else {
+      // No scaling needed
+      scaledValue = formatWith6Decimals(str);
+      unit = "";
     }
     
-    return num.toLocaleString();
+    return scaledValue + unit;
   };
 
   const copyToClipboard = (text: string, label: string) => {
