@@ -15,7 +15,7 @@ const projectId = '52730a62d9934dae769c91899275b45b'
 const metadata = {
   name: 'TENX Renaissance',
   description: 'TENX Renaissance Token Landing Page',
-  url: 'https://tencoin.site', // Explicit production URL
+  url: 'https://www.tencoin.site', // Match the actual domain being used
   icons: ['https://tencoin.site/favicon.ico']
 }
 
@@ -29,14 +29,17 @@ const wagmiAdapter = new WagmiAdapter({
   ssr: true
 })
 
-// 5. Create modal
+// 5. Create modal with comprehensive analytics disabling
 createAppKit({
   adapters: [wagmiAdapter],
   networks,
   projectId,
   metadata,
   features: {
-    analytics: false // Disable analytics to prevent blocked requests
+    analytics: false, // Disable analytics to prevent blocked requests
+    email: false,
+    socials: false,
+    emailShowWallets: false
   },
   enableWalletFeatures: {
     email: false,
@@ -47,7 +50,10 @@ createAppKit({
   enableOnramp: false,
   enableSwap: false,
   enableAccountView: false,
-  enableExplorer: false
+  enableExplorer: false,
+  // Additional options to disable analytics completely
+  disableAnalytics: true,
+  disableTracking: true
 })
 
 export function AppKitProvider({ children }: { children: React.ReactNode }) {
