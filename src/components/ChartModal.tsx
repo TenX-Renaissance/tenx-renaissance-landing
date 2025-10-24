@@ -9,7 +9,7 @@ interface ChartModalProps {
 }
 
 const ChartModal = ({ isOpen, onClose }: ChartModalProps) => {
-  const pairAddress = "0xD30074D096285855B31314539B66D78Ed34f5d4f";
+  const pairAddress = "0x34987aD0EA4785b830900Ef6e0b7b369d2EFf041";
   
   const chartLinks = [
     {
