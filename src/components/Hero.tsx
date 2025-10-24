@@ -15,7 +15,7 @@ const Hero = () => {
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const contractAddress = "0x4575AaC30f08bB618673e0e83af72E43AB4FfD9D";
+  const contractAddress = "0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7";
   const burnTxHash = "0x7bd3b8e83cd1970b1d770ce80030fd21b25bcf3430fa688feecb83fb026cf002";
 
   const copyToClipboard = (text: string, label: string) => {
