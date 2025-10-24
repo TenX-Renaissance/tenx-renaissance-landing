@@ -32,7 +32,7 @@ const wagmiAdapter = new WagmiAdapter({
 // 5. Create modal with comprehensive analytics disabling
 createAppKit({
   adapters: [wagmiAdapter],
-  networks,
+  networks: [bsc],
   projectId,
   metadata,
   features: {
@@ -48,6 +48,5 @@ export function AppKitProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Export the useAppKit hook
-export { useAppKit } from '@reown/appkit/react'
 export { wagmiAdapter }
+

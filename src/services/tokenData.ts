@@ -10,7 +10,7 @@ interface TokenData {
 class TokenDataService {
   private static instance: TokenDataService;
   private cache: TokenData | null = null;
-  private readonly CONTRACT_ADDRESS = '0xc52bAFAf103d219383076F49314FFf125B337210';
+  private readonly CONTRACT_ADDRESS = '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7';
   private readonly DEPLOYER_ADDRESS = '0xE4D55a5F102d44AE2f042d5dd5a6D249847aaCAf'; // Same as contract deployer
 
   private constructor() {}
@@ -89,21 +89,15 @@ class TokenDataService {
 // Hook-based functions for React components
 export const useTokenData = () => {
   const { data: totalSupply, isLoading: totalSupplyLoading, error: totalSupplyError } = useReadContract({
-    address: '0xc52bAFAf103d219383076F49314FFf125B337210' as `0x${string}`,
+    address: '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7' as `0x${string}`,
     abi: TENXRenaissanceABI,
     functionName: 'totalSupply',
-    refetchInterval: false, // Disable auto-refetch
-    refetchOnWindowFocus: false, // Disable refetch on window focus
-    refetchOnReconnect: false, // Disable refetch on reconnect
   });
 
   const { data: reflectionSupply, isLoading: reflectionSupplyLoading, error: reflectionSupplyError } = useReadContract({
-    address: '0xc52bAFAf103d219383076F49314FFf125B337210' as `0x${string}`,
+    address: '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7' as `0x${string}`,
     abi: TENXRenaissanceABI,
     functionName: 'reflectionSupply',
-    refetchInterval: false, // Disable auto-refetch
-    refetchOnWindowFocus: false, // Disable refetch on window focus
-    refetchOnReconnect: false, // Disable refetch on reconnect
   });
 
   // Calculate frozen supply as total supply minus circulation supply
@@ -126,23 +120,17 @@ export const useTokenData = () => {
 
 export const useWalletBalance = (address: `0x${string}` | undefined) => {
   const { data: reflectionBalance, isLoading: reflectionLoading } = useReadContract({
-    address: '0xc52bAFAf103d219383076F49314FFf125B337210' as `0x${string}`,
+    address: '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7' as `0x${string}`,
     abi: TENXRenaissanceABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
-    refetchInterval: false, // Disable auto-refetch
-    refetchOnWindowFocus: false, // Disable refetch on window focus
-    refetchOnReconnect: false, // Disable refetch on reconnect
   });
 
   const { data: coldBalance, isLoading: coldLoading } = useReadContract({
-    address: '0xc52bAFAf103d219383076F49314FFf125B337210' as `0x${string}`,
+    address: '0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7' as `0x${string}`,
     abi: TENXRenaissanceABI,
     functionName: 'coldBalanceOf',
     args: address ? [address] : undefined,
-    refetchInterval: false, // Disable auto-refetch
-    refetchOnWindowFocus: false, // Disable refetch on window focus
-    refetchOnReconnect: false, // Disable refetch on reconnect
   });
 
   return {

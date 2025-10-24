@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useTokenData, useWalletBalance } from "@/services/tokenData";
 import { TENXRenaissanceABI } from "@/config/contract";
-import { AppKitProvider, useAppKit } from "@/config/appkit";
+import { AppKitProvider } from "@/config/appkit";
+import { useAppKit } from "@/config/appkit-exports";
 
 const TokenSummary = () => {
   const [unfreezeAmount, setUnfreezeAmount] = useState<string>("");
@@ -31,7 +32,7 @@ const TokenSummary = () => {
   const { totalSupply, circulationSupply, frozenSupply, isLoading } = useTokenData();
   const { reflectionBalance, coldBalance, isLoading: walletLoading } = useWalletBalance(address);
 
-  const contractAddress = "0xc52bAFAf103d219383076F49314FFf125B337210";
+  const contractAddress = "0x3cc033d5d31f44875be3fF5196B272E8f79D7Fb7";
   const bscScanUrl = `https://bscscan.com/address/${contractAddress}`;
 
   // Handle transaction confirmation
@@ -85,18 +86,19 @@ const TokenSummary = () => {
       });
       
       // Use Wagmi's writeContract (integrated with AppKit)
-      const hash = await writeContract({
+      writeContract({
         address: contractAddress as `0x${string}`,
         abi: TENXRenaissanceABI,
         functionName: 'unfreeze',
         args: [amountInWei],
+        chain: undefined, // Use default chain
+        account: address,
       });
       
-      // Set transaction hash and show submitted message
-      setTxHash(hash);
+      // Show submitted message
       toast({
         title: "Transaction Submitted",
-        description: `Unfreeze transaction submitted successfully. Hash: ${hash.slice(0, 10)}...`,
+        description: "Unfreeze transaction submitted successfully. Please check your wallet for confirmation.",
       });
 
     } catch (error) {
